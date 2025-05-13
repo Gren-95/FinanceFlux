@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluxFinance</title>
+    <style>
+        .signin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .signin-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 1rem;
+            display: none;
+        }
+        .error-message.visible {
+            display: block;
+        }
+        .btn-submit {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-submit:hover {
+            background: #0056b3;
+        }
+        .btn-submit:focus {
+            outline: 3px solid #80bdff;
+        }
+    </style>
+</head>
+<body>
+    {{{body}}}
+    <script>
+        // Client-side form handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('.signin-form');
+            const errorMessage = document.querySelector('.error-message');
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    
+                    try {
+                        const response = await fetch(window.location.pathname + '/auth', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: formData.get('email'),
+                                password: formData.get('password')
+                            })
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            errorMessage.textContent = data.error || 'Email or password is incorrect';
+                            errorMessage.classList.add('visible');
+                        }
+                    } catch (error) {
+                        errorMessage.textContent = 'An error occurred. Please try again.';
+                        errorMessage.classList.add('visible');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
