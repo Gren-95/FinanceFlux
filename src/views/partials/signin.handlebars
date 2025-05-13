@@ -1,0 +1,134 @@
+{{!-- filepath: d:\Projektid\FinanceFlux\src\views\partials\signin.handlebars --}}
+<div class="signin-overlay" role="dialog" aria-labelledby="signin-title">
+  <div class="signin-form">
+    <h2 id="signin-title">Sign In</h2>
+    <form id="signin-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required aria-required="true">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required aria-required="true">
+      </div>
+      <div class="form-errors" aria-live="polite" id="signin-error" hidden>
+        <p class="error-message"></p>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Sign In</button>
+        <a href="#" id="forgot-password">Forgot password?</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const form = document.getElementById('signin-form');
+    const errorContainer = document.getElementById('signin-error');
+    const errorMessage = errorContainer.querySelector('.error-message');
+    const forgotPasswordLink = document.getElementById('forgot-password');
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const email = formData.get('email');
+      const password = formData.get('password');
+      
+      try {
+        const response = await fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // On successful sign-in, reload the current page
+          window.location.reload();
+        } else {
+          // Show error message
+          errorMessage.textContent = data.message;
+          errorContainer.hidden = false;
+        }
+      } catch (error) {
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorContainer.hidden = false;
+      }
+    });
+    
+    forgotPasswordLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Show forgot password form
+      // This would be implemented to show a different form without changing the URL
+      console.log('Forgot password clicked');
+      // TODO: Implement forgot password form
+    });
+  })();
+</script>
+
+<style>
+  .signin-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .signin-form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.25rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .form-actions button {
+    background-color: #0077cc;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+  
+  .form-errors {
+    color: #cc0000;
+    margin-top: 1rem;
+  }
+</style>

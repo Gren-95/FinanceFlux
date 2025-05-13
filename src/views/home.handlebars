@@ -1,0 +1,123 @@
+{{!-- filepath: d:\Projektid\FinanceFlux\src\views\home.handlebars --}}
+<div class="home-page">
+  <div class="hero">
+    <h1>Welcome to FluxFinance</h1>
+    <p>A lightweight web-based accounting application for small businesses</p>
+    
+    {{#unless authenticated}}
+      <div class="cta-buttons">
+        <a href="/api/auth/signin" class="btn btn-primary">Sign In</a>
+      </div>
+    {{/unless}}
+  </div>
+  
+  {{#if authenticated}}
+    <div class="dashboard-summary">
+      <h2>Your Dashboard</h2>
+      <div class="dashboard-cards">
+        <div class="card">
+          <h3>Invoices</h3>
+          <p>Manage your invoices</p>
+          <a href="/invoices" class="btn">View All</a>
+        </div>
+        
+        <div class="card">
+          <h3>Expenses</h3>
+          <p>Track your expenses</p>
+          <a href="/expenses" class="btn">View All</a>
+        </div>
+        
+        <div class="card">
+          <h3>Reports</h3>
+          <p>View financial reports</p>
+          <a href="/reports" class="btn">View All</a>
+        </div>
+      </div>
+    </div>
+  {{else}}
+    <div class="features">
+      <h2>Features</h2>
+      <div class="feature-cards">
+        <div class="card">
+          <h3>Simple Invoicing</h3>
+          <p>Create and send professional invoices to your clients</p>
+        </div>
+        
+        <div class="card">
+          <h3>Expense Tracking</h3>
+          <p>Track all your business expenses in one place</p>
+        </div>
+        
+        <div class="card">
+          <h3>Financial Reports</h3>
+          <p>Generate detailed reports for your business finances</p>
+        </div>
+      </div>
+    </div>
+  {{/if}}
+</div>
+
+<style>
+  .hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: #f5f7fa;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  
+  .hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .hero p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  
+  .cta-buttons {
+    margin-top: 2rem;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #0077cc;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .dashboard-cards,
+  .feature-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+</style>

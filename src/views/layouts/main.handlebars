@@ -1,0 +1,41 @@
+{{!-- filepath: d:\Projektid\FinanceFlux\src\views\layouts\main.handlebars --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FluxFinance</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <!-- Vue.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <header>
+    <nav>
+      <div class="logo">
+        <a href="/">FluxFinance</a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="/invoices">Invoices</a></li>
+        <li><a href="/expenses">Expenses</a></li>
+        <li><a href="/reports">Reports</a></li>
+        {{#if authenticated}}
+          <li>
+            <form action="/api/auth/signout" method="post">
+              <button type="submit" class="signout-btn">Sign Out</button>
+            </form>
+          </li>
+        {{/if}}
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    {{{body}}}
+  </main>
+
+  <footer>
+    <p>&copy; 2025 FluxFinance Team</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,178 @@
+{{!-- filepath: d:\Projektid\FinanceFlux\src\views\invoice-details.handlebars --}}
+<div class="invoice-details">
+  <h1>Invoice #{{invoiceId}}</h1>
+  
+  <div class="invoice-card">
+    <div class="invoice-header">
+      <div class="invoice-status">
+        <span class="status-badge">Draft</span>
+      </div>
+      <div class="invoice-actions">
+        <button class="btn btn-secondary">Edit</button>
+        <button class="btn btn-primary">Send</button>
+      </div>
+    </div>
+    
+    <div class="invoice-body">
+      <div class="invoice-info">
+        <div class="info-group">
+          <h3>Invoice To:</h3>
+          <p>Client Name</p>
+          <p>Client Company</p>
+          <p>Client Address</p>
+          <p>client@example.com</p>
+        </div>
+        
+        <div class="info-group">
+          <h3>Invoice Details:</h3>
+          <p><strong>Invoice Number:</strong> #{{invoiceId}}</p>
+          <p><strong>Date:</strong> May 13, 2025</p>
+          <p><strong>Due Date:</strong> June 12, 2025</p>
+        </div>
+      </div>
+      
+      <div class="invoice-items">
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Web Design Services</td>
+              <td>1</td>
+              <td>$1,500.00</td>
+              <td>$1,500.00</td>
+            </tr>
+            <tr>
+              <td>Content Creation</td>
+              <td>10</td>
+              <td>$75.00</td>
+              <td>$750.00</td>
+            </tr>
+            <tr>
+              <td>Hosting Setup</td>
+              <td>1</td>
+              <td>$250.00</td>
+              <td>$250.00</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Subtotal</strong></td>
+              <td>$2,500.00</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Tax (10%)</strong></td>
+              <td>$250.00</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Total</strong></td>
+              <td>$2,750.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      
+      <div class="invoice-notes">
+        <h3>Notes:</h3>
+        <p>Thank you for your business. Payment is due within 30 days.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .invoice-details {
+    padding: 1rem 0;
+  }
+  
+  .invoice-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 2rem;
+    overflow: hidden;
+  }
+  
+  .invoice-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .status-badge {
+    background-color: #f0ad4e;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .invoice-actions button {
+    margin-left: 0.5rem;
+  }
+  
+  .btn-secondary {
+    background-color: #6c757d;
+  }
+  
+  .invoice-body {
+    padding: 1.5rem;
+  }
+  
+  .invoice-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  
+  .info-group h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+  
+  .invoice-items {
+    margin-bottom: 2rem;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  th {
+    background-color: #f9f9f9;
+  }
+  
+  tfoot td {
+    font-weight: bold;
+  }
+  
+  .text-right {
+    text-align: right;
+  }
+  
+  .invoice-notes {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .invoice-notes h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+</style>
