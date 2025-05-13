@@ -1,6 +1,6 @@
-# FluxFinance
+# FinanceFlux
 
-FluxFinance is a lightweight web-based accounting application built with [Bun](https://bun.sh/), Express, SQLite, and Handlebars. It features a simple Vue-powered frontend (via CDN) and aims to provide efficient and fast financial management for small businesses.
+FinanceFlux is a lightweight web-based accounting application built with [Bun](https://bun.sh/), Express, SQLite, and Handlebars. It features a simple Vue-powered frontend (via CDN) and aims to provide efficient and fast financial management for small businesses.
 
 ## ✅ Features
 
@@ -46,7 +46,7 @@ Visit [http://localhost:3000](http://localhost:3000) in your browser.
 ## 📁 Project Structure
 
 ```
-fluxfinance/
+FinanceFlux/
 ├── views/              # Handlebars templates
 ├── public/             # Static assets (CSS, JS, icons)
 ├── routes/             # Express route modules
@@ -59,4 +59,4 @@ fluxfinance/
 
 ## 📃 License
 
-MIT License © 2025 FluxFinance Team
+MIT License © 2025 FinanceFlux Team
