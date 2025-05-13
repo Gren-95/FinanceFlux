@@ -1,0 +1,29 @@
+<div class="home-container">
+    <div class="hero-section">
+        <h1>Welcome to FinanceFlux</h1>
+        <p>Your personal finance management solution</p>
+        {{#if isAuthenticated}}
+            <a href="/dashboard" class="btn primary-btn">Go to Dashboard</a>
+        {{else}}
+            <button id="get-started-btn" class="btn primary-btn">Get Started</button>
+        {{/if}}
+    </div>
+    
+    <div class="features-section">
+        <h2>Features</h2>
+        <div class="feature-cards">
+            <div class="feature-card">
+                <h3>Expense Tracking</h3>
+                <p>Track your expenses across multiple categories</p>
+            </div>
+            <div class="feature-card">
+                <h3>Budget Planning</h3>
+                <p>Create and manage budgets to achieve your financial goals</p>
+            </div>
+            <div class="feature-card">
+                <h3>Financial Reports</h3>
+                <p>Get detailed insights into your spending habits</p>
+            </div>
+        </div>
+    </div>
+</div>

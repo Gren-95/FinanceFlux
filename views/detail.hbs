@@ -1,0 +1,26 @@
+<div class="detail-container">
+    <h1>Detail Page {{pageId}}</h1>
+    
+    <div class="detail-content">
+        <p>This is a protected page that requires authentication.</p>
+        <p>You are viewing page with ID: {{pageId}}</p>
+        
+        {{#if user}}
+            <div class="user-info">
+                <h3>User Information</h3>
+                <p>Email: {{user.email}}</p>
+                <p>Name: {{user.name}}</p>
+            </div>
+        {{/if}}
+    </div>
+    
+    <div class="navigation-links">
+        {{#if prevPage}}
+            <a href="/{{prevPage}}" class="btn secondary-btn">Previous Page</a>
+        {{/if}}
+        <a href="/" class="btn secondary-btn">Home</a>
+        {{#if nextPage}}
+            <a href="/{{nextPage}}" class="btn secondary-btn">Next Page</a>
+        {{/if}}
+    </div>
+</div>
