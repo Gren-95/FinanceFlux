@@ -1,0 +1,116 @@
+<h1>Dashboard</h1>
+
+<div class="dashboard-container">
+    <div class="dashboard-summary">
+        <div class="summary-card">
+            <h3>Invoices</h3>
+            <p class="summary-number">{{invoiceCount}}</p>
+            <a href="/invoices" class="btn-link">View all</a>
+        </div>
+        
+        <div class="summary-card">
+            <h3>Purchase Invoices</h3>
+            <p class="summary-number">{{purchaseInvoiceCount}}</p>
+            <a href="/purchase-invoices" class="btn-link">View all</a>
+        </div>
+        
+        <div class="summary-card">
+            <h3>Reports</h3>
+            <p class="summary-number">{{reportCount}}</p>
+            <a href="/reports" class="btn-link">View all</a>
+        </div>
+    </div>
+    
+    <div class="dashboard-recent">
+        <h2>Recent Invoices</h2>
+        {{#if recentInvoices.length}}
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each recentInvoices}}
+                    <tr>
+                        <td>{{this.invoiceNumber}}</td>
+                        <td>{{this.date}}</td>
+                        <td>{{this.description}}</td>
+                        <td>{{this.totalSum}} {{this.currency}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        {{else}}
+            <p class="no-data">No recent invoices.</p>
+        {{/if}}
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        margin-top: 2rem;
+    }
+    .dashboard-summary {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .summary-card {
+        flex: 1;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .summary-card h3 {
+        margin-top: 0;
+        color: #6c757d;
+    }
+    .summary-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 1rem 0;
+        color: #343a40;
+    }
+    .btn-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+    .dashboard-recent {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .dashboard-recent h2 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: #343a40;
+    }
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .dashboard-table th {
+        font-weight: bold;
+        color: #6c757d;
+    }
+    .no-data {
+        color: #6c757d;
+        font-style: italic;
+    }
+</style> 

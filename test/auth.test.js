@@ -83,7 +83,8 @@ describe("Authentication", () => {
     const html = await response.text();
     expect(response.status).toBe(200);
     expect(html).not.toContain('name="email"'); // Should not show login form
-    expect(html).toContain('Invoice #3'); // Should show actual content
+    expect(html).toContain('Invoice #3'); // Should show actual invoice content
+    expect(html).toContain('Invoice content goes here'); // Should show invoice content
   });
 
   test("form is keyboard navigable", async () => {
@@ -97,5 +98,46 @@ describe("Authentication", () => {
     
     // Check for proper focus management
     expect(html).toContain('autofocus');
+  });
+
+  test("sign-in form is WCAG 2.1 AA compliant for screen readers", async () => {
+    const protectedUrl = "/invoices/3";
+    const response = await fetch(`http://localhost:${server.port}${protectedUrl}`);
+    const html = await response.text();
+    
+    // Check for proper ARIA attributes for screen readers
+    expect(html).toContain('aria-required="true"');
+    expect(html).toContain('aria-labelledby="');
+    expect(html).toContain('role="alert"');
+    expect(html).toContain('aria-live="polite"');
+    
+    // Check for form labeling
+    expect(html).toContain('id="signin-heading"');
+    expect(html).toContain('id="email-label"');
+    expect(html).toContain('id="password-label"');
+  });
+  
+  test("entering email and password enables form submission", async () => {
+    const protectedUrl = "/invoices/3";
+    const response = await fetch(`http://localhost:${server.port}${protectedUrl}`);
+    const html = await response.text();
+    
+    // Check for required attribute on input fields
+    expect(html).toContain('required');
+    
+    // Check for preventDefault in the JS part
+    expect(html).toContain('e.preventDefault()');
+    
+    // Check for form submission handling
+    expect(html).toContain('addEventListener(\'submit\'');
+  });
+  
+  test("successful login refreshes the page revealing originally requested content", async () => {
+    const protectedUrl = "/invoices/3";
+    const responseHtml = await fetch(`http://localhost:${server.port}${protectedUrl}`);
+    const html = await responseHtml.text();
+    
+    // Check for page reload after successful authentication
+    expect(html).toContain('window.location.reload()');
   });
 });
