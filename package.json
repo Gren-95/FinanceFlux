@@ -26,6 +26,12 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "bun app.js"
+    "start": "bun app.js",
+    "db:init": "node db-init.js",
+    "db:reset": "rm -f db/fluxfinance.sqlite && node db-init.js",
+    "test:integration": "jest tests/auth.api.test.js",
+    "test:mocked": "jest tests/auth.mocked.test.js",
+    "test:ui": "jest tests/sign-in-form.test.js tests/sign-in-accessibility.test.js",
+    "test:e2e": "jest tests/sign-in-e2e.test.js"
   }
 }

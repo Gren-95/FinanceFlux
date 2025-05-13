@@ -3,6 +3,7 @@
 require('@testing-library/jest-dom');
 const { TextEncoder, TextDecoder } = require('util');
 const mockDb = require('./__mocks__/db');
+const authUtils = require('./utils/auth-utils');
 
 // Set up TextEncoder and TextDecoder for Node environment
 global.TextEncoder = TextEncoder;
@@ -10,6 +11,9 @@ global.TextDecoder = TextDecoder;
 
 // Set up mock database for tests
 global.db = mockDb;
+
+// Make auth utilities available globally in tests
+global.authUtils = authUtils;
 
 // Create JSDOM instance when running in Node environment
 if (typeof window === 'undefined') {

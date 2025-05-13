@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const hbs = require('express-handlebars');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -12,11 +13,29 @@ const port = process.env.PORT || 3000;
 // Database connection
 let db;
 (async () => {
-  db = await open({
-    filename: path.join(__dirname, 'db', 'fluxfinance.sqlite'),
-    driver: sqlite3.Database
-  });
-  global.db = db;
+  // Ensure database directory exists
+  const dbDir = path.join(__dirname, 'db');
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+  
+  try {
+    db = await open({
+      filename: path.join(__dirname, 'db', 'fluxfinance.sqlite'),
+      driver: sqlite3.Database
+    });
+    
+    // Check if users table exists
+    const tableCheck = await db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='users';");
+    if (!tableCheck) {
+      console.log("Database tables don't exist. Please run 'npm run db:init' first.");
+    }
+    
+    global.db = db;
+  } catch (err) {
+    console.error('Database connection error:', err);
+    process.exit(1);
+  }
 })();
 
 // View engine setup
