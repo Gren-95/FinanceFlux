@@ -4,11 +4,35 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { userStore } from './auth/userStore.js';
+import bcrypt from 'bcryptjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// Simple in-memory user store
+const users = new Map();
+
+// Helper functions for user management
+const addUser = async (email, password) => {
+  const hashedPassword = await bcrypt.hash(password, 10);
+  users.set(email, { email, password: hashedPassword });
+};
+
+const verifyUser = async (email, password) => {
+  const user = users.get(email);
+  if (!user) return false;
+  return await bcrypt.compare(password, user.password);
+};
+
+// Initialize with test users
+const initUsers = async () => {
+  await addUser('test@example.com', 'wrongpassword');
+  await addUser('valid@example.com', 'correctpassword');
+};
+
 const createServer = async ({ testing = false } = {}) => {
+  // Initialize users
+  await initUsers();
+  
   const app = express();
   const port = testing ? 0 : 3000;
 
@@ -75,7 +99,7 @@ const createServer = async ({ testing = false } = {}) => {
         });
       }
       
-      const isValid = await userStore.verifyUser(email, password);
+      const isValid = await verifyUser(email, password);
       
       if (isValid) {
         req.session.isAuthenticated = true;
@@ -95,7 +119,7 @@ const createServer = async ({ testing = false } = {}) => {
         error: 'An error occurred during authentication' 
       });
     }
-  });// Keep the /auth endpoint for backward compatibility with client-side JS
+  });  // Keep the /auth endpoint for backward compatibility with client-side JS
   app.post('/invoices/:id/auth', async (req, res) => {
     const { email, password } = req.body;
     const redirectUrl = `/invoices/${req.params.id}`;
@@ -109,7 +133,7 @@ const createServer = async ({ testing = false } = {}) => {
         });
       }
       
-      const isValid = await userStore.verifyUser(email, password);
+      const isValid = await verifyUser(email, password);
       
       if (isValid) {
         req.session.isAuthenticated = true;

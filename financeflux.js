@@ -1,4 +1,4 @@
-import { createServer } from './server.js';
+import { createServer } from './src/server.js';
 
 console.log('Starting server...');
 const server = await createServer();
