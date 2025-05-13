@@ -1,7 +1,7 @@
 /**
- * @jest-environment jest-environment-jsdom
+ * @jest-environment jsdom
  */
-// Using jest-environment-jsdom ensures document is available globally
+// Using jsdom ensures document is available globally
 
 const { axe, toHaveNoViolations } = require('jest-axe');
 

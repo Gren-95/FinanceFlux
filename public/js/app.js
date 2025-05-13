@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authError) {
           authError.textContent = 'Please fill in all fields';
         }
-        return;
+        return; // Prevent fetch call
       }
       
       // Email format validation
@@ -121,16 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (authError) {
           authError.textContent = 'Please enter a valid email address';
         }
-        return;
+        return; // Prevent fetch call
       }
       
+      // Show loading state
+      const submitButton = signinForm.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
+      submitButton.textContent = 'Signing in...';
+      submitButton.disabled = true;
+      
       try {
-        // Show loading state
-        const submitButton = signinForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'Signing in...';
-        submitButton.disabled = true;
-        
         const response = await fetch('/auth/signin', {
           method: 'POST',
           headers: {
@@ -139,21 +139,44 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ email, password }),
         });
         
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          // Reset button state
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+          
+          authError.textContent = 'Unable to parse server response';
+          return;
+        }
         
         // Reset button state
         submitButton.textContent = originalButtonText;
         submitButton.disabled = false;
         
         if (!response.ok) {
-          throw new Error(data.message || 'Authentication failed');
+          throw new Error(data?.message || 'Authentication failed');
         }
         
         // Successful login, redirect to the returnTo URL
-        window.location.href = data.returnTo;
+        window.location.href = data.returnTo || '/dashboard';
         
       } catch (error) {
-        authError.textContent = error.message;
+        // Reset button state if not already reset
+        if (submitButton.disabled) {
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+        }
+        
+        // Check if it's a network error or fetch rejection
+        if (error.message === 'Failed to fetch' || 
+            error.name === 'TypeError' || 
+            error.message.includes('NetworkError')) {
+          authError.textContent = 'Network error';
+        } else {
+          authError.textContent = error.message;
+        }
       }
     });
   }
@@ -169,9 +192,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
         
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          console.error('Error parsing signout response:', jsonError);
+          return;
+        }
         
-        if (data.success) {
+        if (data && data.success) {
           window.location.href = '/';
         }
       } catch (error) {
@@ -184,7 +213,12 @@ document.addEventListener('DOMContentLoaded', () => {
   async function checkAuthStatus() {
     try {
       const response = await fetch('/auth/status');
-      return await response.json();
+      try {
+        return await response.json();
+      } catch (jsonError) {
+        console.error('Error parsing auth status response:', jsonError);
+        return { isAuthenticated: false, user: null };
+      }
     } catch (error) {
       console.error('Error checking auth status:', error);
       return { isAuthenticated: false, user: null };

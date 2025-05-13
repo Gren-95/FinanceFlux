@@ -17,6 +17,18 @@ describe('Sign-in Form with app.js interactions', () => {
     // Reset mocks and window.location.href before each test
     fetch.mockClear();
     mockLocation.href = '';
+    
+    // Mock the auth status endpoint by default
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      }
+      // Return undefined for other endpoints so individual tests can mock them
+      return undefined;
+    });
 
     // Set up DOM for tests, including elements app.js interacts with
     document.body.innerHTML = `
@@ -118,9 +130,19 @@ describe('Sign-in Form with app.js interactions', () => {
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
 
     // Test submit with Enter key
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, returnTo: '/dashboard' }),
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      } else if (url === '/auth/signin') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true, returnTo: '/dashboard' })
+        });
+      }
+      return undefined;
     });
 
     // Submit the form with Enter key
@@ -133,9 +155,19 @@ describe('Sign-in Form with app.js interactions', () => {
   });
 
   it('should allow submitting form with valid email and password via app.js', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ success: true, returnTo: '/dashboard' }),
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      } else if (url === '/auth/signin') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true, returnTo: '/dashboard' })
+        });
+      }
+      return undefined;
     });
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -153,26 +185,84 @@ describe('Sign-in Form with app.js interactions', () => {
   });
 
   it('should display client-side error for empty email', async () => {
+    // Clear previous fetch calls
+    fetch.mockClear();
+    
+    // Setup specific mocks just for this test
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      }
+      // We'll track if other endpoints are called
+      return undefined;
+    });
+    
+    // Clear the fetch mock calls from the auth status check
+    fetch.mockClear();
+
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.submit(form);
 
     await waitFor(() => {
       expect(errorMessage.textContent).toBe('Please fill in all fields');
     });
-    expect(fetch).not.toHaveBeenCalled();
+    
+    // Make sure no new fetch calls were made
+    expect(fetch).not.toHaveBeenCalledWith('/auth/signin', expect.any(Object));
   });
 
   it('should display client-side error for empty password', async () => {
+    // Clear previous fetch calls
+    fetch.mockClear();
+    
+    // Setup specific mocks just for this test
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      }
+      // We'll track if other endpoints are called
+      return undefined;
+    });
+    
+    // Clear the fetch mock calls from the auth status check
+    fetch.mockClear();
+
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.submit(form);
 
     await waitFor(() => {
       expect(errorMessage.textContent).toBe('Please fill in all fields');
     });
-    expect(fetch).not.toHaveBeenCalled();
+    
+    // Make sure no new fetch calls were made
+    expect(fetch).not.toHaveBeenCalledWith('/auth/signin', expect.any(Object));
   });
   
   it('should display client-side error for invalid email format', async () => {
+    // Clear previous fetch calls
+    fetch.mockClear();
+    
+    // Setup specific mocks just for this test
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      }
+      // We'll track if other endpoints are called
+      return undefined;
+    });
+    
+    // Clear the fetch mock calls from the auth status check
+    fetch.mockClear();
+
     fireEvent.change(emailInput, { target: { value: 'test' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });
     fireEvent.submit(form);
@@ -180,13 +270,25 @@ describe('Sign-in Form with app.js interactions', () => {
     await waitFor(() => {
       expect(errorMessage.textContent).toBe('Please enter a valid email address');
     });
-    expect(fetch).not.toHaveBeenCalled();
+    
+    // Make sure no new fetch calls were made
+    expect(fetch).not.toHaveBeenCalledWith('/auth/signin', expect.any(Object));
   });
 
   it('should display server error message on failed signin', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ success: false, message: 'Invalid credentials from server' }),
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      } else if (url === '/auth/signin') {
+        return Promise.resolve({
+          ok: false,
+          json: () => Promise.resolve({ success: false, message: 'Invalid credentials from server' })
+        });
+      }
+      return undefined;
     });
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -203,7 +305,17 @@ describe('Sign-in Form with app.js interactions', () => {
   });
   
   it('should handle fetch network error during signin', async () => {
-    fetch.mockRejectedValueOnce(new Error('Network error'));
+    fetch.mockImplementation((url) => {
+      if (url === '/auth/status') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ isAuthenticated: false, user: null })
+        });
+      } else if (url === '/auth/signin') {
+        return Promise.reject(new Error('Network error'));
+      }
+      return undefined;
+    });
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'password123' } });

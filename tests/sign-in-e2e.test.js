@@ -1,5 +1,5 @@
 /**
- * @jest-environment jest-environment-jsdom
+ * @jest-environment jsdom
  */
 const { fireEvent, waitFor } = require('@testing-library/dom');
 require('@testing-library/jest-dom');
