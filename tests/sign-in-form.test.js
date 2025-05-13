@@ -91,8 +91,13 @@ describe('Sign-in Form with app.js interactions', () => {
     // Test error message has live region for screen readers
     expect(errorMessage).toHaveAttribute('aria-live', 'polite');
   });
-  
-  it('should be keyboard navigable', () => {
+    it('should be keyboard navigable', async () => {
+    // Open the modal first
+    fireEvent.click(signinBtn);
+    await waitFor(() => {
+      expect(authModal.classList.contains('show')).toBe(true);
+    });
+
     // Start with focus on the first input
     emailInput.focus();
     expect(document.activeElement).toBe(emailInput);
@@ -108,13 +113,23 @@ describe('Sign-in Form with app.js interactions', () => {
     submitButton.focus(); // Simulate the tab behavior
     expect(document.activeElement).toBe(submitButton);
     
+    // Fill in the form
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+
     // Test submit with Enter key
-    const submitSpy = jest.spyOn(form, 'submit');
-    // Prevent actual form submission for this specific spy part if app.js handles it
-    submitSpy.mockImplementation(e => e.preventDefault()); 
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, returnTo: '/dashboard' }),
+    });
+
+    // Submit the form with Enter key
     fireEvent.keyDown(submitButton, { key: 'Enter' });
-    expect(submitSpy).toHaveBeenCalled();
-    submitSpy.mockRestore(); // Restore original submit behavior
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/auth/signin', expect.any(Object));
+    });
   });
 
   it('should allow submitting form with valid email and password via app.js', async () => {

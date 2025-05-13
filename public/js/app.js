@@ -91,15 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     modalObserver.observe(authModal, { attributes: true, attributeFilter: ['class'] });
-  }
-  // Handle sign in form submission
+  }  // Handle sign in form submission
   if (signinForm) {
     signinForm.addEventListener('submit', async (e) => {
       console.log('app.js: signinForm submit event fired'); // New log
       e.preventDefault();
       
       // Clear previous error messages
-      authError.textContent = '';
+      if (authError) {
+        authError.textContent = '';
+      }
       
       const emailInput = document.getElementById('email');
       const passwordInput = document.getElementById('password');
@@ -108,14 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Form validation
       if (!email || !password) {
-        authError.textContent = 'Please fill in all fields';
+        if (authError) {
+          authError.textContent = 'Please fill in all fields';
+        }
         return;
       }
       
       // Email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
-        authError.textContent = 'Please enter a valid email address';
+        if (authError) {
+          authError.textContent = 'Please enter a valid email address';
+        }
         return;
       }
       
