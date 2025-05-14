@@ -1,0 +1,6 @@
+{{#if isAuthenticated}}
+    <h1>Invoice #{{invoiceId}}</h1>
+    <div>Invoice content goes here...</div>
+{{else}}
+    {{> signin}}
+{{/if}}

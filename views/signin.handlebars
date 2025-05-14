@@ -1,0 +1,32 @@
+<div class="signin-overlay">
+    <form class="signin-form" method="POST" action="{{currentUrl}}">
+        <h2 id="signin-heading">Sign In</h2>
+        <div class="form-group">
+            <label for="email" id="email-label">Email Address</label>
+            <input type="email" 
+                   id="email" 
+                   name="email" 
+                   class="form-control" 
+                   required 
+                   autocomplete="email"
+                   tabindex="0"
+                   autofocus
+                   aria-required="true"
+                   aria-labelledby="email-label">
+        </div>
+        <div class="form-group">
+            <label for="password" id="password-label">Password</label>
+            <input type="password" 
+                   id="password" 
+                   name="password" 
+                   class="form-control" 
+                   required
+                   autocomplete="current-password"
+                   tabindex="0"
+                   aria-required="true"
+                   aria-labelledby="password-label">
+        </div>
+        <div class="error-message" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn-submit" tabindex="0">Sign In</button>
+    </form>
+</div>
