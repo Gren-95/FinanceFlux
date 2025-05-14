@@ -5,9 +5,11 @@
   "private": true,
   "scripts": {
     "test": "bun test",
+    "test:playwright": "playwright test",
     "start": "bun run financeflux.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@types/bun": "latest",
     "@types/express": "^5.0.1"
   },
