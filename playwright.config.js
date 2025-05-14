@@ -6,6 +6,7 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests/playwright',
+  testMatch: '**/*.pw.js',
   outputDir: './test-results',
   
   /* Maximum time one test can run for */
