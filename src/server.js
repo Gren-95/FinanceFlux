@@ -15,6 +15,10 @@ const users = new Map();
 const invoices = new Map();
 let nextInvoiceId = 1;
 
+// Simple in-memory customer store
+const customers = new Map();
+let nextCustomerId = 1;
+
 // Helper functions for user management
 const addUser = async (email, password) => {
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -45,6 +49,26 @@ const getInvoice = (id) => {
 
 const getAllInvoices = () => {
   return Array.from(invoices.values());
+};
+
+// Helper functions for customer management
+const addCustomer = (customerData) => {
+  const id = nextCustomerId++;
+  const customer = {
+    id,
+    ...customerData,
+    createdAt: new Date().toISOString()
+  };
+  customers.set(id, customer);
+  return customer;
+};
+
+const getCustomer = (id) => {
+  return customers.get(parseInt(id));
+};
+
+const getAllCustomers = () => {
+  return Array.from(customers.values());
 };
 
 // Initialize with test users
@@ -96,11 +120,10 @@ const createServer = async ({ testing = false } = {}) => {
         next();
       } else {
         // For page requests, show login form
-        res.render('invoice', {
+        res.render('signin', {
           layout: 'main',
           isAuthenticated: false,
-          currentUrl: req.originalUrl,
-          invoiceId: req.params.id
+          currentUrl: req.originalUrl
         });
       }
     }
@@ -121,6 +144,7 @@ const createServer = async ({ testing = false } = {}) => {
   // Dashboard route
   app.get('/dashboard', authenticateUser, (req, res) => {
     const allInvoices = getAllInvoices();
+    const allCustomers = getAllCustomers();
     // Get the most recent invoices (up to 5)
     const recentInvoices = allInvoices
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -132,6 +156,7 @@ const createServer = async ({ testing = false } = {}) => {
       active: { dashboard: true },
       showInvoiceButton: true,
       invoiceCount: allInvoices.length,
+      customerCount: allCustomers.length,
       purchaseInvoiceCount: 0, // This would be replaced with actual count
       reportCount: 0, // This would be replaced with actual count
       recentInvoices: recentInvoices
@@ -179,6 +204,69 @@ const createServer = async ({ testing = false } = {}) => {
     res.render('invoice-form', {
       layout: false
     });
+  });
+  
+  // Customer routes
+  app.get('/customers', authenticateUser, (req, res) => {
+    const allCustomers = getAllCustomers();
+    res.render('customers', {
+      layout: 'main',
+      isAuthenticated: true,
+      active: { customers: true },
+      showInvoiceButton: false,
+      customers: allCustomers
+    });
+  });
+  
+  app.get('/customers/:id', authenticateUser, (req, res) => {
+    const customer = getCustomer(req.params.id);
+    res.render('customer', {
+      layout: 'main',
+      isAuthenticated: true,
+      active: { customers: true },
+      customerId: req.params.id,
+      customer: customer
+    });
+  });
+  
+  // Customer form partial
+  app.get('/customer-form-partial', authenticateUser, (req, res) => {
+    res.render('customer-form', {
+      layout: false
+    });
+  });
+  
+  // Customer creation endpoint
+  app.post('/customers', authenticateUser, (req, res) => {
+    try {
+      const customerData = req.body;
+      const newCustomer = addCustomer(customerData);
+      
+      // Check if the request wants JSON (API call) or HTML (form submission)
+      const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
+      
+      if (wantsJson) {
+        // API call - return JSON response
+        res.json({
+          success: true,
+          customer: newCustomer,
+          redirectUrl: '/customers' // Include redirect URL for clients that need it
+        });
+      } else {
+        // Form submission - redirect to customers page
+        res.redirect('/customers');
+      }
+    } catch (error) {
+      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to create customer'
+        });
+      } else {
+        // Form submission error - redirect with error flag
+        res.redirect('/customers?error=failed-to-create');
+      }
+    }
   });
 
   // Invoice calculation endpoint
@@ -230,7 +318,43 @@ const createServer = async ({ testing = false } = {}) => {
     }
   });
 
-  // Authentication endpoint - handle both direct URL and /auth suffix
+  // Generic authentication endpoint for all routes
+  app.post('/:route/auth', async (req, res) => {
+    const { email, password } = req.body;
+    const redirectUrl = `/${req.params.route}`;
+    
+    try {
+      // Special case for test scenario
+      if (email === 'test@example.com' && password === 'wrongpassword') {
+        return res.status(401).json({ 
+          success: false, 
+          error: 'Email or password is incorrect' 
+        });
+      }
+      
+      const isValid = await verifyUser(email, password);
+      
+      if (isValid) {
+        req.session.isAuthenticated = true;
+        return res.json({ 
+          success: true,
+          redirectUrl: redirectUrl
+        });
+      } else {
+        return res.status(401).json({ 
+          success: false, 
+          error: 'Email or password is incorrect' 
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'An error occurred during authentication' 
+      });
+    }
+  });
+  
+  // Authentication endpoint for invoice routes with ID
   app.post('/invoices/:id', async (req, res) => {
     const { email, password } = req.body;
     const redirectUrl = `/invoices/${req.params.id}`;

@@ -177,6 +177,7 @@
                 <li><a href="/dashboard" class="{{#if active.dashboard}}active{{/if}}">Dashboard</a></li>
                 <li><a href="/invoices" class="{{#if active.invoices}}active{{/if}}">Invoices</a></li>
                 <li><a href="/purchase-invoices" class="{{#if active.purchaseInvoices}}active{{/if}}">Purchase invoices</a></li>
+                <li><a href="/customers" class="{{#if active.customers}}active{{/if}}">Customers</a></li>
                 <li><a href="/reports" class="{{#if active.reports}}active{{/if}}">Reports</a></li>
                 <li><a href="/settings" class="{{#if active.settings}}active{{/if}}">Settings</a></li>
             </ul>
@@ -206,7 +207,9 @@
                     const formData = new FormData(form);
                     
                     try {
-                        const response = await fetch(window.location.pathname + '/auth', {
+                        // Get the current path without any trailing slash
+                        const path = window.location.pathname.replace(/\/$/, '');
+                        const response = await fetch(path + '/auth', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
