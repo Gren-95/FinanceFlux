@@ -50,6 +50,7 @@ describe("Customer functionality", () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'Cookie': 'session=valid-session-token'
       },
       body: JSON.stringify(customerData)
