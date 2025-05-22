@@ -47,22 +47,28 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // Add a small delay to ensure the DOM is fully ready when the modal is loaded dynamically
+    setTimeout(() => {
         const form = document.getElementById('customer-form');
+        const cancelButton = document.getElementById('cancel-button');
         
-        // Cancel button logic
-        document.getElementById('cancel-button').addEventListener('click', () => {
-            // Close the modal by setting display to none
-            const modal = document.getElementById('customer-modal');
-            if (modal) {
-                modal.style.display = 'none';
-                
-                // Also completely remove the modal from the DOM to prevent issues with multiple instances
-                if (modal.parentNode) {
-                    modal.parentNode.removeChild(modal);
+        // Cancel button logic - check if button exists first
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => {
+                // Close the modal by setting display to none
+                const modal = document.getElementById('customer-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    
+                    // Also completely remove the modal from the DOM to prevent issues with multiple instances
+                    if (modal.parentNode) {
+                        modal.parentNode.removeChild(modal);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            console.error('Cancel button not found in customer modal');
+        }
         
         // Form submission logic
         form.addEventListener('submit', async (e) => {
@@ -117,5 +123,5 @@
                 alert('An error occurred. Please try again.');
             }
         });
-    });
+    })();
 </script>
