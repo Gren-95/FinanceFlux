@@ -1,0 +1,80 @@
+<h1>Invoices</h1>
+
+<div class="invoices-container">
+    {{#if invoices.length}}
+        <table class="invoices-table">
+            <thead>
+                <tr>
+                    <th>Invoice No.</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>VAT</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each invoices}}
+                <tr>
+                    <td>{{this.invoiceNumber}}</td>
+                    <td>{{this.date}}</td>
+                    <td>{{this.description}}</td>
+                    <td>{{this.price}} {{this.currency}}</td>
+                    <td>{{this.vatPercentage}}%</td>
+                    <td>{{this.totalSum}} {{this.currency}}</td>
+                    <td>
+                        <a href="/invoices/{{this.id}}" class="btn-view">View</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <div class="no-invoices">
+            <p>No invoices yet. Click 'New invoice' to create one.</p>
+        </div>
+    {{/if}}
+</div>
+
+<style>
+    .invoices-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+    .invoices-table th,
+    .invoices-table td {
+        border: 1px solid #ddd;
+        padding: 0.5rem;
+        text-align: left;
+    }
+    .invoices-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+    .invoices-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .btn-view {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.875rem;
+    }
+    .btn-view:hover {
+        background-color: #218838;
+    }
+    .no-invoices {
+        padding: 2rem;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        margin-top: 1rem;
+    }
+</style> 

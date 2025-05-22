@@ -1,0 +1,245 @@
+<div id="invoice-modal" class="modal" role="dialog" aria-labelledby="invoice-modal-title">
+    <div class="modal-content">
+        <h2 id="invoice-modal-title">New Invoice</h2>
+        <form id="invoice-form" method="POST" action="/invoices">
+            <div class="form-group">
+                <label for="date" id="date-label">Date</label>
+                <input type="date" 
+                       id="date" 
+                       name="date" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="date-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="description" id="description-label">Description</label>
+                <input type="text" 
+                       id="description" 
+                       name="description" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="description-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity" id="quantity-label">Quantity</label>
+                <input type="number" 
+                       id="quantity" 
+                       name="quantity" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       min="1"
+                       value="1"
+                       data-calculate-sum
+                       aria-required="true"
+                       aria-labelledby="quantity-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="paymentMethod" id="paymentMethod-label">Payment Method</label>
+                <select id="paymentMethod" 
+                       name="paymentMethod" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="paymentMethod-label">
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cash">Cash</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="currency" id="currency-label">Currency</label>
+                <select id="currency" 
+                       name="currency" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="currency-label">
+                    <option value="USD">USD</option>
+                    <option value="EUR">EUR</option>
+                    <option value="GBP">GBP</option>
+                    <option value="JPY">JPY</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceNumber" id="invoiceNumber-label">Invoice Number</label>
+                <input type="text" 
+                       id="invoiceNumber" 
+                       name="invoiceNumber" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="invoiceNumber-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="vatPercentage" id="vatPercentage-label">VAT Percentage</label>
+                <input type="number" 
+                       id="vatPercentage" 
+                       name="vatPercentage" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       min="0"
+                       value="20"
+                       data-calculate-sum
+                       aria-required="true"
+                       aria-labelledby="vatPercentage-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="price" id="price-label">Price</label>
+                <input type="number" 
+                       id="price" 
+                       name="price" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       min="0"
+                       step="0.01"
+                       data-calculate-sum
+                       aria-required="true"
+                       aria-labelledby="price-label">
+            </div>
+            
+            <div class="form-group">
+                <label for="totalSum" id="totalSum-label">Total Sum</label>
+                <input type="text" 
+                       id="totalSum" 
+                       name="totalSum" 
+                       class="form-control" 
+                       readonly
+                       tabindex="0"
+                       aria-readonly="true"
+                       aria-labelledby="totalSum-label">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="cancel-button" class="btn-cancel" tabindex="0">Cancel</button>
+                <button type="submit" id="save-button" class="btn-submit" tabindex="0">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Invoice form calculation logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('invoice-form');
+        const priceInput = document.getElementById('price');
+        const quantityInput = document.getElementById('quantity');
+        const vatPercentageInput = document.getElementById('vatPercentage');
+        const totalSumField = document.getElementById('totalSum');
+        
+        // Calculate total sum function
+        function calculateTotal() {
+            const price = parseFloat(priceInput.value) || 0;
+            const quantity = parseInt(quantityInput.value) || 0;
+            const vatPercentage = parseFloat(vatPercentageInput.value) || 0;
+            
+            // Calculate total: price * quantity * (1 + vatPercentage/100)
+            const subtotal = price * quantity;
+            const total = subtotal * (1 + vatPercentage / 100);
+            
+            // Format to 2 decimal places and update field
+            totalSumField.value = total.toFixed(2);
+            
+            // Debug - remove this in production
+            console.log(`Calculated total: ${total.toFixed(2)} (Price: ${price}, Quantity: ${quantity}, VAT: ${vatPercentage}%)`);
+        }
+        
+        // Add event listeners to calculation fields
+        priceInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('change', calculateTotal);
+        quantityInput.addEventListener('input', calculateTotal);
+        quantityInput.addEventListener('change', calculateTotal);
+        vatPercentageInput.addEventListener('input', calculateTotal);
+        vatPercentageInput.addEventListener('change', calculateTotal);
+        
+        // Call calculation immediately to initialize the field
+        // Use setTimeout to ensure the DOM is fully loaded
+        setTimeout(calculateTotal, 0);
+        
+        // Cancel button logic
+        document.getElementById('cancel-button').addEventListener('click', () => {
+            // Close the modal by setting display to none
+            const modal = document.getElementById('invoice-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                
+                // For debugging
+                console.log('Cancel button clicked, removing modal from DOM');
+                
+                // Also completely remove the modal from the DOM to prevent issues with multiple instances
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }
+        });
+        
+        // Form submission logic
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Calculate the total sum one more time before submission
+            calculateTotal();
+            
+            const formData = new FormData(form);
+            const formObject = {};
+            
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
+            
+            // Log form data for debugging
+            console.log('Submitting form with data:', formObject);
+            
+            try {
+                const response = await fetch('/invoices', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formObject)
+                });
+                
+                const result = await response.json();
+                console.log('Server response:', result);
+                
+                if (result.success) {
+                    // Close modal and reload to show the new invoice
+                    const modal = document.getElementById('invoice-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        
+                        // Also completely remove the modal from the DOM
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }
+                    
+                    // Reload the page to show the new invoice
+                    window.location.reload();
+                } else {
+                    alert(result.error || 'Failed to save invoice');
+                }
+            } catch (error) {
+                console.error('Error saving invoice:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+</script> 
