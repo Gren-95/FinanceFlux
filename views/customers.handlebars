@@ -1,0 +1,58 @@
+<h1>Customers</h1>
+
+<button class="btn btn-new" id="new-customer-btn" data-action="open-customer-modal">New customer</button>
+
+<div class="customer-list">
+    {{#if customers.length}}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each customers}}
+                <tr>
+                    <td>{{name}}</td>
+                    <td>{{address}}</td>
+                    <td>{{email}}</td>
+                    <td>
+                        <a href="/customers/{{id}}" class="btn">View</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <p>No customers found. Add your first customer by clicking "New customer".</p>
+    {{/if}}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const newCustomerBtn = document.getElementById('new-customer-btn');
+        
+        if (newCustomerBtn) {
+            newCustomerBtn.addEventListener('click', async () => {
+                try {
+                    // Load the customer form partial
+                    const response = await fetch('/customer-form-partial');
+                    const html = await response.text();
+                    
+                    // Create a temporary container and insert the HTML
+                    const tempContainer = document.createElement('div');
+                    tempContainer.innerHTML = html;
+                    
+                    // Append to body and show
+                    document.body.appendChild(tempContainer.firstElementChild);
+                    document.getElementById('customer-modal').style.display = 'block';
+                } catch (error) {
+                    alert('Failed to load customer form');
+                }
+            });
+        }
+    });
+</script>
