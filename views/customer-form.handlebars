@@ -1,0 +1,139 @@
+<div id="customer-modal" class="modal" role="dialog" aria-labelledby="customer-modal-title">
+    <div class="modal-content">
+        <h2 id="customer-modal-title">{{#if isEditing}}Edit{{else}}New{{/if}} Customer</h2>
+        <form id="customer-form" method="POST" action="/customers{{#if customer}}/{{customer.id}}{{/if}}">
+            {{#if customer}}
+            <input type="hidden" id="customer-id" name="id" value="{{customer.id}}">
+            {{/if}}
+            <div class="form-group">
+                <label for="name" id="name-label">Customer Name</label>
+                <input type="text" 
+                       id="name" 
+                       name="name" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="name-label"
+                       value="{{customer.name}}">
+            </div>
+            
+            <div class="form-group">
+                <label for="address" id="address-label">Address</label>
+                <input type="text" 
+                       id="address" 
+                       name="address" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="address-label"
+                       value="{{customer.address}}">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" id="email-label">Email</label>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       class="form-control" 
+                       required 
+                       tabindex="0"
+                       aria-required="true"
+                       aria-labelledby="email-label"
+                       value="{{customer.email}}">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" id="cancel-button" class="btn-cancel" tabindex="0">Cancel</button>
+                <button type="submit" id="save-button" class="btn-submit" tabindex="0">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Add a small delay to ensure the DOM is fully ready when the modal is loaded dynamically
+    setTimeout(() => {
+        const form = document.getElementById('customer-form');
+        const cancelButton = document.getElementById('cancel-button');
+        const customerId = document.getElementById('customer-id');
+        
+        // Cancel button logic - check if button exists first
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => {
+                // Close the modal by setting display to none
+                const modal = document.getElementById('customer-modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    
+                    // Also completely remove the modal from the DOM to prevent issues with multiple instances
+                    if (modal.parentNode) {
+                        modal.parentNode.removeChild(modal);
+                    }
+                }
+            });
+        } else {
+            console.error('Cancel button not found in customer modal');
+        }
+        
+        // Form submission logic
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const formObject = {};
+            
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
+            
+            try {
+                // Determine if we're creating or updating
+                const isEditing = customerId && customerId.value;
+                const url = isEditing ? `/customers/${customerId.value}` : '/customers';
+                const method = 'POST'; // Always use POST for both creating and updating
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formObject)
+                });
+                
+                // Check if we received a redirect response
+                if (response.redirected) {
+                    // If the server sent a redirect, follow it
+                    window.location.href = response.url;
+                    return;
+                }
+                
+                // Otherwise handle the JSON response
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Close modal and navigate to show the new customer
+                    const modal = document.getElementById('customer-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        
+                        // Also completely remove the modal from the DOM
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }
+                    
+                    // Navigate to the customers page or use the provided redirectUrl
+                    window.location.href = result.redirectUrl || '/customers';
+                } else {
+                    alert(result.error || 'Failed to save customer');
+                }
+            } catch (error) {
+                console.error('Error saving customer:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    }, 0);
+</script>
