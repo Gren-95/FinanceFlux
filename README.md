@@ -26,21 +26,22 @@ FinanceFlux is a lightweight web-based accounting application built with [Bun](h
 bun install
 ```
 
-### 2. Initialize the Database
-
-```bash
-bun run init:db
-```
-
-This will create a new SQLite database with the required schema.
-
-### 3. Run the Application
+### 2. Run the Application
 
 ```bash
 bun run start
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Test Credentials
+
+When running the application, you can use the following test credentials:
+
+```
+Email: valid@example.com
+Password: correctpassword
+```
 
 ## 🧪 Testing
 
@@ -73,16 +74,18 @@ bunx playwright show-report
 ## 📁 Project Structure
 
 ```
-fluxfinance/
+FinanceFlux/
 ├── views/              # Handlebars templates
-├── public/             # Static assets (CSS, JS, icons)
-├── routes/             # Express route modules
-├── db/                 # SQLite DB and schema setup
-├── app.js              # Main server entry point
-├── init-db.js          # DB initialization script
-└── bun.lockb           # Bun lockfile
+│   └── layouts/        # Layout templates
+├── src/                # Source code
+│   └── server.js       # Server configuration
+├── test/               # Unit tests
+├── tests/              # End-to-end tests
+│   └── playwright/     # Playwright test files
+├── financeflux.js      # Main application entry point
+├── playwright.config.js# Playwright configuration
+└── bun.lock            # Bun lockfile
 ```
-
 
 ## 📃 License
 
