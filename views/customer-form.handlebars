@@ -79,15 +79,24 @@
                 const response = await fetch('/customers', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
                     body: JSON.stringify(formObject)
                 });
                 
+                // Check if we received a redirect response
+                if (response.redirected) {
+                    // If the server sent a redirect, follow it
+                    window.location.href = response.url;
+                    return;
+                }
+                
+                // Otherwise handle the JSON response
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Close modal and reload to show the new customer
+                    // Close modal and navigate to show the new customer
                     const modal = document.getElementById('customer-modal');
                     if (modal) {
                         modal.style.display = 'none';
@@ -98,8 +107,8 @@
                         }
                     }
                     
-                    // Reload the page to show the new customer
-                    window.location.reload();
+                    // Navigate to the customers page or use the provided redirectUrl
+                    window.location.href = result.redirectUrl || '/customers';
                 } else {
                     alert(result.error || 'Failed to save customer');
                 }

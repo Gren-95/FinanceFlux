@@ -207,7 +207,9 @@
                     const formData = new FormData(form);
                     
                     try {
-                        const response = await fetch(window.location.pathname + '/auth', {
+                        // Get the current path without any trailing slash
+                        const path = window.location.pathname.replace(/\/$/, '');
+                        const response = await fetch(path + '/auth', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

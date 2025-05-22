@@ -242,15 +242,30 @@ const createServer = async ({ testing = false } = {}) => {
       const customerData = req.body;
       const newCustomer = addCustomer(customerData);
       
-      res.json({
-        success: true,
-        customer: newCustomer
-      });
+      // Check if the request wants JSON (API call) or HTML (form submission)
+      const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
+      
+      if (wantsJson) {
+        // API call - return JSON response
+        res.json({
+          success: true,
+          customer: newCustomer,
+          redirectUrl: '/customers' // Include redirect URL for clients that need it
+        });
+      } else {
+        // Form submission - redirect to customers page
+        res.redirect('/customers');
+      }
     } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: 'Failed to create customer'
-      });
+      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to create customer'
+        });
+      } else {
+        // Form submission error - redirect with error flag
+        res.redirect('/customers?error=failed-to-create');
+      }
     }
   });
 
