@@ -174,8 +174,11 @@ test.describe('Customer functionality', () => {
     
     // Verify the updated customer info is displayed
     await expect(page.locator(`td:has-text("${updatedName}")`)).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('td:has-text("456 Updated Street")')).toBeVisible();
-    await expect(page.locator('td:has-text("updated@example.com")')).toBeVisible();
+    
+    // Look for the updated address and email in the row containing the updated name
+    const updatedRow = page.locator('tr', { has: page.locator(`td:has-text("${updatedName}")`) });
+    await expect(updatedRow.locator('td:has-text("456 Updated Street")')).toBeVisible();
+    await expect(updatedRow.locator('td:has-text("updated@example.com")')).toBeVisible();
     
     // Original name should no longer be present
     await expect(page.locator(`td:has-text("${originalName}")`)).toHaveCount(0);
