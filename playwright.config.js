@@ -42,10 +42,12 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+    /* WebKit disabled due to missing system libraries
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+    */
   ],
 
   /* Run your local dev server before starting the tests */

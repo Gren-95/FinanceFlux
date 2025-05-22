@@ -139,45 +139,73 @@
     // Invoice form calculation logic
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('invoice-form');
-        const calculateInputs = document.querySelectorAll('[data-calculate-sum]');
+        const priceInput = document.getElementById('price');
+        const quantityInput = document.getElementById('quantity');
+        const vatPercentageInput = document.getElementById('vatPercentage');
         const totalSumField = document.getElementById('totalSum');
         
         // Calculate total sum function
         function calculateTotal() {
-            const price = parseFloat(document.getElementById('price').value) || 0;
-            const quantity = parseInt(document.getElementById('quantity').value) || 0;
-            const vatPercentage = parseFloat(document.getElementById('vatPercentage').value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const quantity = parseInt(quantityInput.value) || 0;
+            const vatPercentage = parseFloat(vatPercentageInput.value) || 0;
             
+            // Calculate total: price * quantity * (1 + vatPercentage/100)
             const subtotal = price * quantity;
-            const vatAmount = subtotal * (vatPercentage / 100);
-            const total = subtotal + vatAmount;
+            const total = subtotal * (1 + vatPercentage / 100);
             
+            // Format to 2 decimal places and update field
             totalSumField.value = total.toFixed(2);
+            
+            // Debug - remove this in production
+            console.log(`Calculated total: ${total.toFixed(2)} (Price: ${price}, Quantity: ${quantity}, VAT: ${vatPercentage}%)`);
         }
         
         // Add event listeners to calculation fields
-        calculateInputs.forEach(input => {
-            input.addEventListener('input', calculateTotal);
-        });
+        priceInput.addEventListener('input', calculateTotal);
+        priceInput.addEventListener('change', calculateTotal);
+        quantityInput.addEventListener('input', calculateTotal);
+        quantityInput.addEventListener('change', calculateTotal);
+        vatPercentageInput.addEventListener('input', calculateTotal);
+        vatPercentageInput.addEventListener('change', calculateTotal);
         
-        // Initial calculation
-        calculateTotal();
+        // Call calculation immediately to initialize the field
+        // Use setTimeout to ensure the DOM is fully loaded
+        setTimeout(calculateTotal, 0);
         
         // Cancel button logic
         document.getElementById('cancel-button').addEventListener('click', () => {
-            // Close the modal
-            document.getElementById('invoice-modal').style.display = 'none';
+            // Close the modal by setting display to none
+            const modal = document.getElementById('invoice-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                
+                // For debugging
+                console.log('Cancel button clicked, removing modal from DOM');
+                
+                // Also completely remove the modal from the DOM to prevent issues with multiple instances
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }
         });
         
         // Form submission logic
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Calculate the total sum one more time before submission
+            calculateTotal();
+            
             const formData = new FormData(form);
             const formObject = {};
             
             formData.forEach((value, key) => {
                 formObject[key] = value;
             });
+            
+            // Log form data for debugging
+            console.log('Submitting form with data:', formObject);
             
             try {
                 const response = await fetch('/invoices', {
@@ -189,15 +217,27 @@
                 });
                 
                 const result = await response.json();
+                console.log('Server response:', result);
                 
                 if (result.success) {
                     // Close modal and reload to show the new invoice
-                    document.getElementById('invoice-modal').style.display = 'none';
+                    const modal = document.getElementById('invoice-modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        
+                        // Also completely remove the modal from the DOM
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }
+                    
+                    // Reload the page to show the new invoice
                     window.location.reload();
                 } else {
                     alert(result.error || 'Failed to save invoice');
                 }
             } catch (error) {
+                console.error('Error saving invoice:', error);
                 alert('An error occurred. Please try again.');
             }
         });

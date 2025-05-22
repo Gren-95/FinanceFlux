@@ -190,13 +190,12 @@ const createServer = async ({ testing = false } = {}) => {
     const vatPercentageNum = parseFloat(vatPercentage) || 0;
     
     const subtotal = priceNum * quantityNum;
-    const vatAmount = subtotal * (vatPercentageNum / 100);
-    const total = subtotal + vatAmount;
+    const total = subtotal * (1 + vatPercentageNum / 100);
     
     res.json({
       subtotal,
-      vatAmount,
-      sum: total
+      vatAmount: total - subtotal,
+      sum: total.toFixed(2)
     });
   });
 
@@ -204,6 +203,19 @@ const createServer = async ({ testing = false } = {}) => {
   app.post('/invoices', authenticateUser, (req, res) => {
     try {
       const invoiceData = req.body;
+      
+      // Calculate total sum if not provided or empty
+      if (!invoiceData.totalSum || invoiceData.totalSum === '') {
+        const price = parseFloat(invoiceData.price) || 0;
+        const quantity = parseInt(invoiceData.quantity) || 0;
+        const vatPercentage = parseFloat(invoiceData.vatPercentage) || 0;
+        
+        const subtotal = price * quantity;
+        const total = subtotal * (1 + vatPercentage / 100);
+        
+        invoiceData.totalSum = total.toFixed(2);
+      }
+      
       const newInvoice = addInvoice(invoiceData);
       
       res.json({
