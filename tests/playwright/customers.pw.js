@@ -106,4 +106,78 @@ test.describe('Customer functionality', () => {
       }
     }
   });
+
+  test('can edit an existing customer', async ({ page }) => {
+    // First create a customer to edit
+    await page.click('a:has-text("Customers")');
+    await page.waitForLoadState('networkidle');
+    
+    // Click new customer button
+    await page.click('button:has-text("New customer")');
+    
+    // Wait for modal to appear
+    await expect(page.locator('#customer-modal')).toBeVisible({ timeout: 10000 });
+    
+    // Fill out the form with initial data
+    const originalName = 'Edit Test Customer ' + Date.now();
+    await page.waitForSelector('#name', { state: 'visible' });
+    await page.fill('#name', originalName);
+    await page.fill('#address', '123 Original Street');
+    await page.fill('#email', 'original@example.com');
+    
+    // Save the new customer
+    await page.click('#save-button');
+    
+    // Wait for navigation or response processing
+    try {
+      await page.waitForURL('**/customers', { timeout: 10000 });
+      await page.waitForLoadState('networkidle', { timeout: 5000 });
+    } catch (e) {
+      // If we get a JSON response instead of a navigation, manually go to customers page
+      await page.goto('/customers');
+      await page.waitForLoadState('networkidle');
+    }
+    
+    // Verify the new customer appears in the list
+    await expect(page.locator(`td:has-text("${originalName}")`)).toBeVisible({ timeout: 10000 });
+    
+    // Now find and click the edit button for this customer
+    const row = page.locator('tr', { has: page.locator(`td:has-text("${originalName}")`) });
+    await row.locator('.edit-customer-btn').click();
+    
+    // Wait for edit modal to appear
+    await expect(page.locator('#customer-modal')).toBeVisible({ timeout: 10000 });
+    
+    // Verify current values are populated
+    await expect(page.locator('#name')).toHaveValue(originalName);
+    await expect(page.locator('#address')).toHaveValue('123 Original Street');
+    await expect(page.locator('#email')).toHaveValue('original@example.com');
+    
+    // Update the customer data
+    const updatedName = 'Updated Customer ' + Date.now();
+    await page.fill('#name', updatedName);
+    await page.fill('#address', '456 Updated Street');
+    await page.fill('#email', 'updated@example.com');
+    
+    // Save the updated customer
+    await page.click('#save-button');
+    
+    // Handle navigation or response
+    try {
+      await page.waitForURL('**/customers', { timeout: 10000 });
+      await page.waitForLoadState('networkidle', { timeout: 5000 });
+    } catch (e) {
+      // If we get a JSON response instead of a navigation, manually go to customers page
+      await page.goto('/customers');
+      await page.waitForLoadState('networkidle');
+    }
+    
+    // Verify the updated customer info is displayed
+    await expect(page.locator(`td:has-text("${updatedName}")`)).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('td:has-text("456 Updated Street")')).toBeVisible();
+    await expect(page.locator('td:has-text("updated@example.com")')).toBeVisible();
+    
+    // Original name should no longer be present
+    await expect(page.locator(`td:has-text("${originalName}")`)).toHaveCount(0);
+  });
 });

@@ -21,6 +21,9 @@
                     <td>{{email}}</td>
                     <td>
                         <a href="/customers/{{id}}" class="btn">View</a>
+                        <button class="btn edit-customer-btn" data-customer-id="{{id}}" aria-label="Edit customer">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
                     </td>
                 </tr>
                 {{/each}}
@@ -68,5 +71,42 @@
                 }
             });
         }
+        
+        // Add event listeners to edit buttons
+        const editButtons = document.querySelectorAll('.edit-customer-btn');
+        editButtons.forEach(button => {
+            button.addEventListener('click', async () => {
+                try {
+                    const customerId = button.dataset.customerId;
+                    // Load the customer form partial with the customer ID as a query parameter
+                    const response = await fetch(`/customer-form-partial?id=${customerId}`);
+                    const html = await response.text();
+                    
+                    // Create a temporary container and insert the HTML
+                    const tempContainer = document.createElement('div');
+                    tempContainer.innerHTML = html;
+                    
+                    // Append to body and show
+                    const modalElement = tempContainer.firstElementChild;
+                    document.body.appendChild(modalElement);
+                    
+                    // Make sure the modal is shown
+                    modalElement.style.display = 'block';
+                    
+                    // Ensure the cancel button works by adding a direct event listener here too
+                    const cancelButton = document.getElementById('cancel-button');
+                    if (cancelButton) {
+                        cancelButton.addEventListener('click', () => {
+                            modalElement.style.display = 'none';
+                            if (modalElement.parentNode) {
+                                modalElement.parentNode.removeChild(modalElement);
+                            }
+                        });
+                    }
+                } catch (error) {
+                    alert('Failed to load customer edit form');
+                }
+            });
+        });
     });
 </script>

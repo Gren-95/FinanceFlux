@@ -1,7 +1,10 @@
 <div id="customer-modal" class="modal" role="dialog" aria-labelledby="customer-modal-title">
     <div class="modal-content">
-        <h2 id="customer-modal-title">New Customer</h2>
-        <form id="customer-form" method="POST" action="/customers">
+        <h2 id="customer-modal-title">{{#if isEditing}}Edit{{else}}New{{/if}} Customer</h2>
+        <form id="customer-form" method="POST" action="/customers{{#if customer}}/{{customer.id}}{{/if}}">
+            {{#if customer}}
+            <input type="hidden" id="customer-id" name="id" value="{{customer.id}}">
+            {{/if}}
             <div class="form-group">
                 <label for="name" id="name-label">Customer Name</label>
                 <input type="text" 
@@ -11,7 +14,8 @@
                        required 
                        tabindex="0"
                        aria-required="true"
-                       aria-labelledby="name-label">
+                       aria-labelledby="name-label"
+                       value="{{customer.name}}">
             </div>
             
             <div class="form-group">
@@ -23,7 +27,8 @@
                        required 
                        tabindex="0"
                        aria-required="true"
-                       aria-labelledby="address-label">
+                       aria-labelledby="address-label"
+                       value="{{customer.address}}">
             </div>
             
             <div class="form-group">
@@ -35,7 +40,8 @@
                        required 
                        tabindex="0"
                        aria-required="true"
-                       aria-labelledby="email-label">
+                       aria-labelledby="email-label"
+                       value="{{customer.email}}">
             </div>
             
             <div class="form-actions">
@@ -51,6 +57,7 @@
     setTimeout(() => {
         const form = document.getElementById('customer-form');
         const cancelButton = document.getElementById('cancel-button');
+        const customerId = document.getElementById('customer-id');
         
         // Cancel button logic - check if button exists first
         if (cancelButton) {
@@ -82,8 +89,13 @@
             });
             
             try {
-                const response = await fetch('/customers', {
-                    method: 'POST',
+                // Determine if we're creating or updating
+                const isEditing = customerId && customerId.value;
+                const url = isEditing ? `/customers/${customerId.value}` : '/customers';
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json'
@@ -123,5 +135,5 @@
                 alert('An error occurred. Please try again.');
             }
         });
-    })();
+    }, 0);
 </script>

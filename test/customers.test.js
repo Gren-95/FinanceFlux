@@ -64,4 +64,66 @@ describe("Customer functionality", () => {
     expect(result.customer.email).toBe(customerData.email);
     expect(result.customer.id).toBeDefined();
   });
+
+  test("authenticated user can edit an existing customer", async () => {
+    // First create a customer
+    const customerData = {
+      name: "Customer To Edit",
+      address: "456 Original St",
+      email: "original@customer.com"
+    };
+    
+    const createResponse = await fetch(`http://localhost:${server.port}/customers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cookie': 'session=valid-session-token'
+      },
+      body: JSON.stringify(customerData)
+    });
+    
+    const createResult = await createResponse.json();
+    expect(createResponse.status).toBe(200);
+    expect(createResult.success).toBe(true);
+    
+    // Now edit the customer
+    const customerId = createResult.customer.id;
+    const updatedData = {
+      name: "Updated Customer Name",
+      address: "789 New Address",
+      email: "updated@customer.com"
+    };
+    
+    const editResponse = await fetch(`http://localhost:${server.port}/customers/${customerId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Cookie': 'session=valid-session-token'
+      },
+      body: JSON.stringify(updatedData)
+    });
+    
+    const editResult = await editResponse.json();
+    expect(editResponse.status).toBe(200);
+    expect(editResult.success).toBe(true);
+    expect(editResult.customer.id).toBe(customerId);
+    expect(editResult.customer.name).toBe(updatedData.name);
+    expect(editResult.customer.address).toBe(updatedData.address);
+    expect(editResult.customer.email).toBe(updatedData.email);
+    
+    // Verify the customer was updated by fetching it
+    const getResponse = await fetch(`http://localhost:${server.port}/customers/${customerId}`, {
+      headers: {
+        'Cookie': 'session=valid-session-token'
+      }
+    });
+    
+    const html = await getResponse.text();
+    expect(getResponse.status).toBe(200);
+    expect(html).toContain(updatedData.name);
+    expect(html).toContain(updatedData.address);
+    expect(html).toContain(updatedData.email);
+  });
 });

@@ -63,6 +63,25 @@ const addCustomer = (customerData) => {
   return customer;
 };
 
+const updateCustomer = (id, customerData) => {
+  id = parseInt(id);
+  const existingCustomer = customers.get(id);
+  
+  if (!existingCustomer) {
+    return null;
+  }
+  
+  const updatedCustomer = {
+    ...existingCustomer,
+    ...customerData,
+    id,
+    updatedAt: new Date().toISOString()
+  };
+  
+  customers.set(id, updatedCustomer);
+  return updatedCustomer;
+};
+
 const getCustomer = (id) => {
   return customers.get(parseInt(id));
 };
@@ -231,8 +250,16 @@ const createServer = async ({ testing = false } = {}) => {
   
   // Customer form partial
   app.get('/customer-form-partial', authenticateUser, (req, res) => {
+    // Check if we're editing an existing customer
+    let customer = null;
+    if (req.query.id) {
+      customer = getCustomer(req.query.id);
+    }
+    
     res.render('customer-form', {
-      layout: false
+      layout: false,
+      customer: customer,
+      isEditing: !!customer
     });
   });
   
@@ -246,26 +273,49 @@ const createServer = async ({ testing = false } = {}) => {
       const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
       
       if (wantsJson) {
-        // API call - return JSON response
-        res.json({
+        return res.json({
           success: true,
           customer: newCustomer,
-          redirectUrl: '/customers' // Include redirect URL for clients that need it
+          redirectUrl: '/customers'
         });
       } else {
-        // Form submission - redirect to customers page
-        res.redirect('/customers');
+        return res.redirect('/customers');
       }
     } catch (error) {
-      if (req.headers.accept && req.headers.accept.includes('application/json')) {
-        res.status(500).json({
+      console.error('Error creating customer:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create customer'
+      });
+    }
+  });
+  
+  // Customer update endpoint
+  app.put('/customers/:id', authenticateUser, (req, res) => {
+    try {
+      const customerId = req.params.id;
+      const customerData = req.body;
+      const updatedCustomer = updateCustomer(customerId, customerData);
+      
+      if (!updatedCustomer) {
+        return res.status(404).json({
           success: false,
-          error: 'Failed to create customer'
+          error: `Customer with ID ${customerId} not found`
         });
-      } else {
-        // Form submission error - redirect with error flag
-        res.redirect('/customers?error=failed-to-create');
       }
+      
+      // Return JSON response with the updated customer
+      return res.json({
+        success: true,
+        customer: updatedCustomer,
+        redirectUrl: '/customers'
+      });
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update customer'
+      });
     }
   });
 
