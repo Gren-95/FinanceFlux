@@ -92,7 +92,7 @@
                 // Determine if we're creating or updating
                 const isEditing = customerId && customerId.value;
                 const url = isEditing ? `/customers/${customerId.value}` : '/customers';
-                const method = isEditing ? 'PUT' : 'POST';
+                const method = 'POST'; // Always use POST for both creating and updating
                 
                 const response = await fetch(url, {
                     method: method,

@@ -290,7 +290,7 @@ const createServer = async ({ testing = false } = {}) => {
     }
   });
   
-  // Customer update endpoint
+  // Customer update endpoint - PUT method for API calls
   app.put('/customers/:id', authenticateUser, (req, res) => {
     try {
       const customerId = req.params.id;
@@ -318,7 +318,43 @@ const createServer = async ({ testing = false } = {}) => {
       });
     }
   });
-
+  
+  // Customer update endpoint - POST method for form submissions
+  app.post('/customers/:id', authenticateUser, (req, res) => {
+    try {
+      const customerId = req.params.id;
+      const customerData = req.body;
+      const updatedCustomer = updateCustomer(customerId, customerData);
+      
+      if (!updatedCustomer) {
+        return res.status(404).json({
+          success: false,
+          error: `Customer with ID ${customerId} not found`
+        });
+      }
+      
+      // Check if the request wants JSON (API call) or HTML (form submission)
+      const wantsJson = req.headers.accept && req.headers.accept.includes('application/json');
+      
+      if (wantsJson) {
+        return res.json({
+          success: true,
+          customer: updatedCustomer,
+          redirectUrl: '/customers'
+        });
+      } else {
+        // For traditional form submissions, redirect to the customers page
+        return res.redirect('/customers');
+      }
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update customer'
+      });
+    }
+  });
+  
   // Invoice calculation endpoint
   app.post('/calculate-invoice-sum', authenticateUser, (req, res) => {
     const { price, quantity, vatPercentage } = req.body;
